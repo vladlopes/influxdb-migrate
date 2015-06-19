@@ -27,6 +27,6 @@ You will need a valid Go installation (at least 1.4).
 After building (or installing), use the switch -h to see the parameters for the command.
 
 # Limitations
-* Only have migration from 0.9.0-rc31 (although I think the database has the same structure since 0.9.0-rc12)
 * Don't import Continuous Queries
 * Don't use access information (user/password) for the destination database
+* Don't use possible raft snapshots to perform database commands, relying only on the raft.db file

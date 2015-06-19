@@ -1,25 +1,29 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/influxdb/influxdb/client"
 	"github.com/influxdb/influxdb/tsdb"
 	"github.com/vladlopes/influxdb-migrate/database"
+	"github.com/vladlopes/influxdb-migrate/from090"
 	"github.com/vladlopes/influxdb-migrate/from090rc31"
 )
 
 var (
-	versions    = []string{"090rc31"}
+	versions = map[string]func(string, chan<- database.Database, chan<- client.BatchPoints){
+		"090rc31": from090rc31.GetPoints,
+		"090":     from090.GetPoints,
+	}
 	fromversion = flag.String(
 		"fromversion",
-		versions[0],
-		fmt.Sprintf("From wich version to migrate (%s)", strings.Join(versions, "|")))
+		"090rc31",
+		fmt.Sprintf("From wich version to migrate (%s)", getversions()))
 	datapath       = flag.String("datapath", "/home/vagrant/.influxdbold/data", "Location of the old version meta file and shards directory")
 	writeurl       = flag.String("writeurl", "http://localhost:8086/", "Url of the new database version")
 	betweenwrites  = flag.Duration("betweenwrites", 10*time.Millisecond, "Interval to wait between writes")
@@ -37,11 +41,10 @@ func main() {
 
 	cdatabases := make(chan database.Database)
 	cpoints := make(chan client.BatchPoints)
-	switch *fromversion {
-	case versions[0]:
-		go from090rc31.GetPoints(*datapath, cdatabases, cpoints)
-	default:
-		log.Fatalf("Invalid version %s. Valids: %s", *fromversion, strings.Join(versions, "|"))
+	if f, ok := versions[*fromversion]; !ok {
+		log.Fatalf("Invalid version %s. Valids: %s", *fromversion, getversions())
+	} else {
+		go f(*datapath, cdatabases, cpoints)
 	}
 
 	var c *client.Client
@@ -124,6 +127,14 @@ func main() {
 	}
 
 	fmt.Printf("\nMigration completed!\n")
+}
+
+func getversions() string {
+	b := &bytes.Buffer{}
+	for k := range versions {
+		b.WriteString(fmt.Sprintf("[%s]", k))
+	}
+	return b.String()
 }
 
 func sleep() {
