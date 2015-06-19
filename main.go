@@ -25,6 +25,7 @@ var (
 	betweenwrites  = flag.Duration("betweenwrites", 10*time.Millisecond, "Interval to wait between writes")
 	pointsperwrite = flag.Int("pointsperwrite", 500, "Points per write")
 	onlyprint      = flag.Bool("onlyprint", false, "Only print points to stdout instead of sending to the server")
+	nodbcmd        = flag.Bool("nodbcmd", false, "Don't perform database commands")
 )
 
 func main() {
@@ -69,7 +70,7 @@ func main() {
 		dbcreatecmd := fmt.Sprintf("create database %s", db.Name)
 		if *onlyprint {
 			fmt.Printf("%s\n", dbcreatecmd)
-		} else {
+		} else if !*nodbcmd {
 			_, err := c.Query(client.Query{Command: dbcreatecmd})
 			if err != nil {
 				fmt.Printf("Error creating database %s: %v\n", db.Name, err)
@@ -85,7 +86,7 @@ func main() {
 				rp.Name, db.Name, rp.Duration.Nanoseconds()/int64(time.Microsecond), rp.ReplicaN, def)
 			if *onlyprint {
 				fmt.Printf("%s\n", rpcreatecmd)
-			} else {
+			} else if !*nodbcmd {
 				_, err := c.Query(client.Query{Command: rpcreatecmd})
 				if err != nil {
 					fmt.Printf("Error creating retention policy %s on database %s: %v\n", rp.Name, db.Name, err)
