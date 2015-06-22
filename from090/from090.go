@@ -132,7 +132,7 @@ func GetPoints(datapath string,
 						if bname != "fields" && bname != "series" {
 							bnameescaped := bname
 							for k, v := range escapes {
-								bnameescaped = strings.Replace(bname, k, v.newtoken, -1)
+								bnameescaped = strings.Replace(bnameescaped, k, v.newtoken, -1)
 							}
 							bnamesplitted := strings.Split(bnameescaped, ",")
 							mname := bnamesplitted[0]
@@ -142,9 +142,11 @@ func GetPoints(datapath string,
 								tags := make(map[string]string)
 								for i := 1; i < len(bnamesplitted); i++ {
 									ts := strings.Split(bnamesplitted[i], "=")
+									tag := ts[1]
 									for _, v := range escapes {
-										tags[ts[0]] = strings.Replace(ts[1], v.newtoken, v.replaced, -1)
+										tag = strings.Replace(tag, v.newtoken, v.replaced, -1)
 									}
+									tags[ts[0]] = tag
 								}
 
 								bp := client.BatchPoints{
