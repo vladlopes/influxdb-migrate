@@ -22,9 +22,18 @@ import (
 	"github.com/vladlopes/influxdb-migrate/database"
 )
 
-const (
-	commaescaped        = `\,`
-	replacecommaescaped = `§_§a§` // this sequence can't happen on a tag
+type replaceescaped struct {
+	newtoken string
+	replaced string
+}
+
+var (
+	escapes = map[string]replaceescaped{
+		`\,`: replaceescaped{newtoken: `§_§a§`, replaced: `,`},
+		`\"`: replaceescaped{newtoken: `§_§b§`, replaced: `"`},
+		`\ `: replaceescaped{newtoken: `§_§c§`, replaced: ` `},
+		`\=`: replaceescaped{newtoken: `§_§d§`, replaced: `=`},
+	}
 )
 
 type measurement struct {
@@ -121,7 +130,10 @@ func GetPoints(datapath string,
 					tx.ForEach(func(name []byte, b *bolt.Bucket) error {
 						bname := string(name)
 						if bname != "fields" && bname != "series" {
-							bnameescaped := strings.Replace(bname, commaescaped, replacecommaescaped, -1)
+							bnameescaped := bname
+							for k, v := range escapes {
+								bnameescaped = strings.Replace(bname, k, v.newtoken, -1)
+							}
 							bnamesplitted := strings.Split(bnameescaped, ",")
 							mname := bnamesplitted[0]
 							if _, ok := measurements[mname]; !ok {
@@ -130,7 +142,9 @@ func GetPoints(datapath string,
 								tags := make(map[string]string)
 								for i := 1; i < len(bnamesplitted); i++ {
 									ts := strings.Split(bnamesplitted[i], "=")
-									tags[ts[0]] = strings.Replace(ts[1], replacecommaescaped, ",", -1)
+									for _, v := range escapes {
+										tags[ts[0]] = strings.Replace(ts[1], v.newtoken, v.replaced, -1)
+									}
 								}
 
 								bp := client.BatchPoints{
