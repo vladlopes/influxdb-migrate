@@ -17,8 +17,6 @@ import (
 	"github.com/hashicorp/raft"
 	"github.com/influxdb/influxdb/client"
 	"github.com/influxdb/influxdb/influxql"
-	mi "github.com/influxdb/influxdb/meta/internal"
-	ti "github.com/influxdb/influxdb/tsdb/internal"
 	"github.com/vladlopes/influxdb-migrate/database"
 )
 
@@ -240,19 +238,19 @@ func decodeMsgPack(buf []byte, out interface{}) error {
 }
 
 func applycommand(dbs []database.Database, b []byte) []database.Database {
-	var cmd mi.Command
+	var cmd Command
 	if err := proto.Unmarshal(b, &cmd); err != nil {
 		return dbs
 	}
 	updateddbs := dbs
 	switch cmd.GetType() {
-	case mi.Command_CreateDatabaseCommand:
-		ext, _ := proto.GetExtension(&cmd, mi.E_CreateDatabaseCommand_Command)
-		v := ext.(*mi.CreateDatabaseCommand)
+	case Command_CreateDatabaseCommand:
+		ext, _ := proto.GetExtension(&cmd, E_CreateDatabaseCommand_Command)
+		v := ext.(*CreateDatabaseCommand)
 		updateddbs = append(updateddbs, database.Database{Name: v.GetName()})
-	case mi.Command_DropDatabaseCommand:
-		ext, _ := proto.GetExtension(&cmd, mi.E_DropDatabaseCommand_Command)
-		v := ext.(*mi.DropDatabaseCommand)
+	case Command_DropDatabaseCommand:
+		ext, _ := proto.GetExtension(&cmd, E_DropDatabaseCommand_Command)
+		v := ext.(*DropDatabaseCommand)
 		if len(dbs) > 0 {
 			updateddbs = make([]database.Database, len(dbs)-1)
 			for _, db := range dbs {
@@ -261,9 +259,9 @@ func applycommand(dbs []database.Database, b []byte) []database.Database {
 				}
 			}
 		}
-	case mi.Command_CreateRetentionPolicyCommand:
-		ext, _ := proto.GetExtension(&cmd, mi.E_CreateRetentionPolicyCommand_Command)
-		v := ext.(*mi.CreateRetentionPolicyCommand)
+	case Command_CreateRetentionPolicyCommand:
+		ext, _ := proto.GetExtension(&cmd, E_CreateRetentionPolicyCommand_Command)
+		v := ext.(*CreateRetentionPolicyCommand)
 		for i, db := range updateddbs {
 			if db.Name == v.GetDatabase() {
 				rp := v.GetRetentionPolicy()
@@ -276,9 +274,9 @@ func applycommand(dbs []database.Database, b []byte) []database.Database {
 				break
 			}
 		}
-	case mi.Command_DropRetentionPolicyCommand:
-		ext, _ := proto.GetExtension(&cmd, mi.E_DropRetentionPolicyCommand_Command)
-		v := ext.(*mi.DropRetentionPolicyCommand)
+	case Command_DropRetentionPolicyCommand:
+		ext, _ := proto.GetExtension(&cmd, E_DropRetentionPolicyCommand_Command)
+		v := ext.(*DropRetentionPolicyCommand)
 		for i, db := range updateddbs {
 			if db.Name == v.GetDatabase() {
 				if len(updateddbs[i].Policies) > 0 {
@@ -297,9 +295,9 @@ func applycommand(dbs []database.Database, b []byte) []database.Database {
 				break
 			}
 		}
-	case mi.Command_SetDefaultRetentionPolicyCommand:
-		ext, _ := proto.GetExtension(&cmd, mi.E_SetDefaultRetentionPolicyCommand_Command)
-		v := ext.(*mi.SetDefaultRetentionPolicyCommand)
+	case Command_SetDefaultRetentionPolicyCommand:
+		ext, _ := proto.GetExtension(&cmd, E_SetDefaultRetentionPolicyCommand_Command)
+		v := ext.(*SetDefaultRetentionPolicyCommand)
 		for i, db := range updateddbs {
 			if db.Name == v.GetDatabase() {
 				updateddbs[i].DefaultRetentionPolicy = v.GetName()
@@ -316,19 +314,19 @@ type measurementFields struct {
 
 // MarshalBinary encodes the object to a binary format.
 func (m *measurementFields) MarshalBinary() ([]byte, error) {
-	var pb ti.MeasurementFields
+	var pb MeasurementFields
 	for _, f := range m.Fields {
 		id := int32(f.ID)
 		name := f.Name
 		t := int32(f.Type)
-		pb.Fields = append(pb.Fields, &ti.Field{ID: &id, Name: &name, Type: &t})
+		pb.Fields = append(pb.Fields, &Field{ID: &id, Name: &name, Type: &t})
 	}
 	return proto.Marshal(&pb)
 }
 
 // UnmarshalBinary decodes the object from a binary format.
 func (m *measurementFields) UnmarshalBinary(buf []byte) error {
-	var pb ti.MeasurementFields
+	var pb MeasurementFields
 	if err := proto.Unmarshal(buf, &pb); err != nil {
 		return err
 	}
