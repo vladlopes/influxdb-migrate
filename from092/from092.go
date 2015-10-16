@@ -3,6 +3,7 @@ package from092
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gogo/protobuf/proto"
+	"github.com/golang/snappy"
 	"github.com/hashicorp/go-msgpack/codec"
 	"github.com/hashicorp/raft"
 	"github.com/influxdb/influxdb/client"
@@ -40,9 +42,9 @@ type measurement struct {
 }
 
 type field struct {
-	ID   uint8
-	Name string
-	Type influxql.DataType
+	ID   uint8             `json:"id,omitempty"`
+	Name string            `json:"name,omitempty"`
+	Type influxql.DataType `json:"type,omitempty"`
 }
 
 func GetPoints(datapath string,
@@ -118,11 +120,14 @@ func GetPoints(datapath string,
 							engine = v
 						}
 					}
+
 					switch string(engine) {
 					case "b1":
 						return getb1points(tx, db.Name, rp.Name, sf.Name(), cpoints)
+					case "bz1":
+						return getbz1points(tx, db.Name, rp.Name, sf.Name(), cpoints)
 					default:
-						log.Printf("Unkown engine format %s for shard %s\n", engine, sf.Name())
+						log.Fatalf("Unkown engine format %s for shard %s\n", engine, sf.Name())
 					}
 					return nil
 				})
@@ -343,7 +348,7 @@ func getb1points(tx *bolt.Tx,
 			bnamesplitted := strings.Split(bnameescaped, ",")
 			mname := bnamesplitted[0]
 			if _, ok := measurements[mname]; !ok {
-				fmt.Printf("Couldn't find measurement %s in measurements\n", mname)
+				log.Printf("Couldn't find measurement %s in measurements\n", mname)
 			} else {
 				tags := make(map[string]string)
 				for i := 1; i < len(bnamesplitted); i++ {
@@ -377,3 +382,99 @@ func getb1points(tx *bolt.Tx,
 	}
 	return nil
 }
+
+func getbz1points(tx *bolt.Tx,
+	dbname, rpname, sfname string,
+	cpoints chan<- client.BatchPoints) error {
+
+	fb := tx.Bucket([]byte("meta"))
+	if fb == nil {
+		log.Fatalf("Couldn't find bucket meta in shard %s\n", sfname)
+	}
+	v := fb.Get([]byte("fields"))
+
+	data, err := snappy.Decode(nil, v)
+	if err != nil {
+		log.Fatalf("Error decoding fields bucket: %v\n", err)
+	}
+
+	measurements := make(map[string]*measurementFields)
+	if err := json.Unmarshal(data, &measurements); err != nil {
+		return fmt.Errorf("Error unmarshalling measurements: %v\n", err)
+	}
+
+	pb := tx.Bucket([]byte("points"))
+	if pb == nil {
+		log.Fatalf("Error retrieving points bucket from %s.%s.%s\n", dbname, rpname, sfname)
+	}
+	pb.ForEach(func(k, v []byte) error {
+		bname := string(k)
+		bnameescaped := bname
+		for k, v := range escapes {
+			bnameescaped = strings.Replace(bnameescaped, k, v.newtoken, -1)
+		}
+		bnamesplitted := strings.Split(bnameescaped, ",")
+		mname := bnamesplitted[0]
+		if _, ok := measurements[mname]; !ok {
+			log.Fatalf("Couldn't find measurement %s in measurements\n", mname)
+		} else {
+			tags := make(map[string]string)
+			for i := 1; i < len(bnamesplitted); i++ {
+				ts := strings.Split(bnamesplitted[i], "=")
+				tag := ts[1]
+				for _, v := range escapes {
+					tag = strings.Replace(tag, v.newtoken, v.replaced, -1)
+				}
+				tags[ts[0]] = tag
+			}
+
+			b := pb.Bucket(k)
+			if b == nil {
+				log.Fatalf("Error opening bucket %s\n", bname)
+			} else {
+				b.ForEach(func(k1, v1 []byte) error {
+					buf, err := snappy.Decode(nil, v1[8:])
+					if err != nil {
+						log.Fatalf("Error decoding entry in %s.%s.%s.%s\n",
+							dbname, rpname, sfname, bname)
+					}
+					var entries [][]byte
+					for {
+						if len(buf) == 0 {
+							break
+						}
+
+						dataSize := entryDataSize(buf)
+						entries = append(entries, buf[0:entryHeaderSize+dataSize])
+
+						buf = buf[entryHeaderSize+dataSize:]
+					}
+
+					bp := client.BatchPoints{
+						Database:        dbname,
+						RetentionPolicy: rpname,
+					}
+
+					for _, b := range entries {
+						bp.Points = append(bp.Points, client.Point{
+							Measurement: mname,
+							Time:        time.Unix(0, int64(btou64(b[0:8]))),
+							Tags:        tags,
+							Fields:      getfields(mname, measurements[mname], b[entryHeaderSize:]),
+						})
+					}
+					cpoints <- bp
+					return nil
+				})
+			}
+		}
+		return nil
+	})
+	return nil
+}
+
+// entryHeaderSize is the number of bytes required for the header.
+const entryHeaderSize = 8 + 4
+
+// entryDataSize returns the size of an entry's data field, in bytes.
+func entryDataSize(v []byte) int { return int(binary.BigEndian.Uint32(v[8:12])) }
