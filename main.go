@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/influxdb/influxdb/client"
-	"github.com/influxdb/influxdb/tsdb"
+	"github.com/influxdb/influxdb/models"
 	"github.com/vladlopes/influxdb-migrate/database"
 	"github.com/vladlopes/influxdb-migrate/from090"
 	"github.com/vladlopes/influxdb-migrate/from090rc31"
@@ -118,7 +118,7 @@ func main() {
 				}
 			} else {
 				for _, p := range points {
-					fmt.Printf("%s\n", tsdb.NewPoint(p.Measurement, p.Tags, p.Fields, p.Time).String())
+					fmt.Printf("%s\n", models.NewPoint(p.Measurement, p.Tags, p.Fields, p.Time).String())
 				}
 			}
 			points = points[max:]
