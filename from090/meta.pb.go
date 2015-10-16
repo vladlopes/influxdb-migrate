@@ -478,7 +478,7 @@ func (m *UserPrivilege) GetPrivilege() int32 {
 }
 
 type Command struct {
-	Type             *Command_Type             `protobuf:"varint,1,req,name=type,enum=internal.Command_Type" json:"type,omitempty"`
+	Type             *Command_Type             `protobuf:"varint,1,req,name=type,enum=from090.Command_Type" json:"type,omitempty"`
 	XXX_extensions   map[int32]proto.Extension `json:"-"`
 	XXX_unrecognized []byte                    `json:"-"`
 }
@@ -536,7 +536,7 @@ var E_CreateNodeCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*CreateNodeCommand)(nil),
 	Field:         101,
-	Name:          "internal.CreateNodeCommand.command",
+	Name:          "from090.CreateNodeCommand.command",
 	Tag:           "bytes,101,opt,name=command",
 }
 
@@ -560,7 +560,7 @@ var E_DeleteNodeCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*DeleteNodeCommand)(nil),
 	Field:         102,
-	Name:          "internal.DeleteNodeCommand.command",
+	Name:          "from090.DeleteNodeCommand.command",
 	Tag:           "bytes,102,opt,name=command",
 }
 
@@ -584,7 +584,7 @@ var E_CreateDatabaseCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*CreateDatabaseCommand)(nil),
 	Field:         103,
-	Name:          "internal.CreateDatabaseCommand.command",
+	Name:          "from090.CreateDatabaseCommand.command",
 	Tag:           "bytes,103,opt,name=command",
 }
 
@@ -608,7 +608,7 @@ var E_DropDatabaseCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*DropDatabaseCommand)(nil),
 	Field:         104,
-	Name:          "internal.DropDatabaseCommand.command",
+	Name:          "from090.DropDatabaseCommand.command",
 	Tag:           "bytes,104,opt,name=command",
 }
 
@@ -640,7 +640,7 @@ var E_CreateRetentionPolicyCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*CreateRetentionPolicyCommand)(nil),
 	Field:         105,
-	Name:          "internal.CreateRetentionPolicyCommand.command",
+	Name:          "from090.CreateRetentionPolicyCommand.command",
 	Tag:           "bytes,105,opt,name=command",
 }
 
@@ -672,7 +672,7 @@ var E_DropRetentionPolicyCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*DropRetentionPolicyCommand)(nil),
 	Field:         106,
-	Name:          "internal.DropRetentionPolicyCommand.command",
+	Name:          "from090.DropRetentionPolicyCommand.command",
 	Tag:           "bytes,106,opt,name=command",
 }
 
@@ -704,7 +704,7 @@ var E_SetDefaultRetentionPolicyCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*SetDefaultRetentionPolicyCommand)(nil),
 	Field:         107,
-	Name:          "internal.SetDefaultRetentionPolicyCommand.command",
+	Name:          "from090.SetDefaultRetentionPolicyCommand.command",
 	Tag:           "bytes,107,opt,name=command",
 }
 
@@ -760,7 +760,7 @@ var E_UpdateRetentionPolicyCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*UpdateRetentionPolicyCommand)(nil),
 	Field:         108,
-	Name:          "internal.UpdateRetentionPolicyCommand.command",
+	Name:          "from090.UpdateRetentionPolicyCommand.command",
 	Tag:           "bytes,108,opt,name=command",
 }
 
@@ -800,7 +800,7 @@ var E_CreateShardGroupCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*CreateShardGroupCommand)(nil),
 	Field:         109,
-	Name:          "internal.CreateShardGroupCommand.command",
+	Name:          "from090.CreateShardGroupCommand.command",
 	Tag:           "bytes,109,opt,name=command",
 }
 
@@ -840,7 +840,7 @@ var E_DeleteShardGroupCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*DeleteShardGroupCommand)(nil),
 	Field:         110,
-	Name:          "internal.DeleteShardGroupCommand.command",
+	Name:          "from090.DeleteShardGroupCommand.command",
 	Tag:           "bytes,110,opt,name=command",
 }
 
@@ -880,7 +880,7 @@ var E_CreateContinuousQueryCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*CreateContinuousQueryCommand)(nil),
 	Field:         111,
-	Name:          "internal.CreateContinuousQueryCommand.command",
+	Name:          "from090.CreateContinuousQueryCommand.command",
 	Tag:           "bytes,111,opt,name=command",
 }
 
@@ -912,7 +912,7 @@ var E_DropContinuousQueryCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*DropContinuousQueryCommand)(nil),
 	Field:         112,
-	Name:          "internal.DropContinuousQueryCommand.command",
+	Name:          "from090.DropContinuousQueryCommand.command",
 	Tag:           "bytes,112,opt,name=command",
 }
 
@@ -952,7 +952,7 @@ var E_CreateUserCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*CreateUserCommand)(nil),
 	Field:         113,
-	Name:          "internal.CreateUserCommand.command",
+	Name:          "from090.CreateUserCommand.command",
 	Tag:           "bytes,113,opt,name=command",
 }
 
@@ -976,7 +976,7 @@ var E_DropUserCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*DropUserCommand)(nil),
 	Field:         114,
-	Name:          "internal.DropUserCommand.command",
+	Name:          "from090.DropUserCommand.command",
 	Tag:           "bytes,114,opt,name=command",
 }
 
@@ -1008,7 +1008,7 @@ var E_UpdateUserCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*UpdateUserCommand)(nil),
 	Field:         115,
-	Name:          "internal.UpdateUserCommand.command",
+	Name:          "from090.UpdateUserCommand.command",
 	Tag:           "bytes,115,opt,name=command",
 }
 
@@ -1048,7 +1048,7 @@ var E_SetPrivilegeCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*SetPrivilegeCommand)(nil),
 	Field:         116,
-	Name:          "internal.SetPrivilegeCommand.command",
+	Name:          "from090.SetPrivilegeCommand.command",
 	Tag:           "bytes,116,opt,name=command",
 }
 
@@ -1072,7 +1072,7 @@ var E_SetDataCommand_Command = &proto.ExtensionDesc{
 	ExtendedType:  (*Command)(nil),
 	ExtensionType: (*SetDataCommand)(nil),
 	Field:         117,
-	Name:          "internal.SetDataCommand.command",
+	Name:          "from090.SetDataCommand.command",
 	Tag:           "bytes,117,opt,name=command",
 }
 
@@ -1109,7 +1109,7 @@ func (m *Response) GetIndex() uint64 {
 }
 
 func init() {
-	proto.RegisterEnum("internal.Command_Type", Command_Type_name, Command_Type_value)
+	proto.RegisterEnum("from090.Command_Type", Command_Type_name, Command_Type_value)
 	proto.RegisterExtension(E_CreateNodeCommand_Command)
 	proto.RegisterExtension(E_DeleteNodeCommand_Command)
 	proto.RegisterExtension(E_CreateDatabaseCommand_Command)
