@@ -13,12 +13,14 @@ import (
 	"github.com/vladlopes/influxdb-migrate/database"
 	"github.com/vladlopes/influxdb-migrate/from090"
 	"github.com/vladlopes/influxdb-migrate/from090rc31"
+	"github.com/vladlopes/influxdb-migrate/from092"
 )
 
 var (
 	versions = map[string]func(string, chan<- database.Database, chan<- client.BatchPoints){
 		"090rc31": from090rc31.GetPoints,
 		"090":     from090.GetPoints,
+		"092":     from092.GetPoints,
 	}
 	fromversion = flag.String(
 		"fromversion",
