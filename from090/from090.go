@@ -113,7 +113,7 @@ func GetPoints(datapath string,
 					measurements := make(map[string]*measurementFields)
 					fb := tx.Bucket([]byte("fields"))
 					if fb == nil {
-						log.Fatalf("Couldn't find bucket fields in shard %s", sf.Name())
+						log.Fatalf("Couldn't find bucket fields in shard %s\n", sf.Name())
 					}
 					fb.ForEach(func(k, v []byte) error {
 						mname := string(k)
@@ -135,7 +135,7 @@ func GetPoints(datapath string,
 							bnamesplitted := strings.Split(bnameescaped, ",")
 							mname := bnamesplitted[0]
 							if _, ok := measurements[mname]; !ok {
-								fmt.Printf("Couldn't find measurement %s in measurements", mname)
+								fmt.Printf("Couldn't find measurement %s in measurements\n", mname)
 							} else {
 								tags := make(map[string]string)
 								for i := 1; i < len(bnamesplitted); i++ {
