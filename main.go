@@ -120,7 +120,11 @@ func main() {
 				}
 			} else {
 				for _, p := range points {
-					fmt.Printf("%s\n", models.NewPoint(p.Measurement, p.Tags, p.Fields, p.Time).String())
+					if sp, err := models.NewPoint(p.Measurement, p.Tags, p.Fields, p.Time); err != nil {
+						fmt.Printf("Error marshalling point %v to line protocol: %v\n", p, err)
+					} else {
+						fmt.Printf("%s\n", sp)
+					}
 				}
 			}
 			points = points[max:]
