@@ -31,3 +31,16 @@ After building (or installing), use the switch -h to see the parameters for the 
 * Don't use access information (user/password) for the destination database
 * Don't use possible raft snapshots to perform database commands, relying only on the `raft.db` file
 * If you don't want to issue database and retention policy commands, they must exist in the new database before the migration starts
+
+# Example
+Migrating from the latest `b1` and `bz1` engine. The first was introduced in 0.9.0 and the last in 0.9.3. On 0.9.2 the shard format was changed to include the format of the engine used. Therefore, to migrate from the latest version without `tsm1` engine you could do on Ubuntu:
+
+```
+sudo stop influxdb
+sudo mv /var/opt/influxdb /var/opt/influxdbold
+sudo mkdir /var/opt/influxdb
+# change the engine on your config file to tsm1
+# engine = tsm1
+sudo start influxdb
+./influxdb-migrate -datapath='/var/opt/influxdbold' -fromversion=092 -pointsperwrite=1000 -betweenwrites=1s
+```
