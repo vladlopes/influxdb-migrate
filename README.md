@@ -40,7 +40,7 @@ sudo stop influxdb
 sudo mv /var/opt/influxdb /var/opt/influxdbold
 sudo mkdir /var/opt/influxdb
 # change the engine on your config file to tsm1
-# engine = tsm1
+# engine = "tsm1"
 sudo start influxdb
 ./influxdb-migrate -datapath='/var/opt/influxdbold' -fromversion=092 -pointsperwrite=1000 -betweenwrites=1s
 ```
